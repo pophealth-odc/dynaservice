@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Monitoring App</title>
+  <link rel="stylesheet" href="/api/test/fixture/app.css">
+</head>
+<body>
+  <!-- Demo site for the Cloud Screenshot Service test console. It stores nothing and has no real accounts. -->
+  <header class="topbar" data-testid="topbar">
+    <div class="brand">Demo<span>Monitor</span></div>
+    <nav data-testid="main-nav" aria-label="Main">
+      <a href="/api/test/fixture/problems" id="nav-problems" class="nav-link" data-route="problems">Problems</a>
+      <a href="/api/test/fixture/services" class="nav-link" data-route="services">Services</a>
+      <a href="/api/test/fixture/reports" class="nav-link" data-route="reports">Reports</a>
+    </nav>
+    <div class="account">
+      <span id="whoami" hidden></span>
+      <button type="button" id="logout" class="btn btn-ghost" hidden>Log out</button>
+    </div>
+  </header>
+
+  <main id="app" aria-live="polite">
+
+    <!-- ===== Login view (fake: any non-empty username and a password of "demo" are accepted) ===== -->
+    <section id="view-login" class="view" hidden>
+      <form id="login-form" class="card narrow" autocomplete="off">
+        <h1>Sign in</h1>
+        <p class="muted">Demo login. Use any username and the password <code>demo</code>. Then press the confirm button in the test console.</p>
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="off">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="off">
+        <div id="mfa-box" hidden>
+          <label for="mfa">One-time code</label>
+          <input id="mfa" name="otp" type="text" inputmode="numeric" autocomplete="off" placeholder="Enter any 6 digits">
+        </div>
+        <p id="login-error" class="error" role="alert" hidden></p>
+        <button type="submit" id="login-submit" class="btn">Continue</button>
+      </form>
+    </section>
+
+    <!-- ===== Problems ===== -->
+    <section id="view-problems" class="view" hidden>
+      <h1>Problems</h1>
+      <p class="muted">Open problems detected across your environment.</p>
+      <table class="table" data-testid="problems-table">
+        <thead><tr><th>ID</th><th>Title</th><th>Severity</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>P-1001</td><td>Response time degradation</td><td><span class="pill warn">Warning</span></td><td><button type="button" class="btn btn-small row-open">Open</button></td></tr>
+          <tr><td>P-1002</td><td>Failure rate increase</td><td><span class="pill bad">Critical</span></td><td><button type="button" class="btn btn-small row-open">Open</button></td></tr>
+          <tr><td>P-1003</td><td>Slow database queries</td><td><span class="pill warn">Warning</span></td><td><button type="button" class="btn btn-small row-open">Open</button></td></tr>
+        </tbody>
+      </table>
+      <p id="problem-detail" class="card" hidden></p>
+    </section>
+
+    <!-- ===== Services ===== -->
+    <section id="view-services" class="view" hidden>
+      <h1>Services</h1>
+      <p class="muted">Services and their health. The list loads asynchronously.</p>
+      <div id="services-loading" class="muted">Loading services…</div>
+      <ul id="services-list" class="cards" data-testid="services-list" hidden>
+        <li><a href="/api/test/fixture/services/checkout" class="service-link" data-service="checkout">checkout-service</a><span class="pill ok">Healthy</span></li>
+        <li><a href="/api/test/fixture/services/payments" class="service-link" data-service="payments">payments-service</a><span class="pill warn">Degraded</span></li>
+        <li><a href="/api/test/fixture/services/search" class="service-link" data-service="search">search-service</a><span class="pill ok">Healthy</span></li>
+      </ul>
+    </section>
+
+    <section id="view-service-detail" class="view" hidden>
+      <h1 id="service-title">Service</h1>
+      <div class="card" id="service-details" data-testid="service-details">
+        <p>Requests per minute: <strong>1,284</strong></p>
+        <p>Median response time: <strong>182 ms</strong></p>
+      </div>
+      <h2>Embedded metrics</h2>
+      <iframe id="metrics-frame" title="Metrics" src="/api/test/fixture/frame.html" width="480" height="140"></iframe>
+      <h2>Component inside shadow DOM</h2>
+      <status-badge id="status-badge"></status-badge>
+    </section>
+
+    <!-- ===== Reports (contains a destructive button used to test the safety guard) ===== -->
+    <section id="view-reports" class="view" hidden>
+      <h1>Reports</h1>
+      <p class="muted">Generated reports. The Delete button exists to demonstrate that destructive clicks are blocked.</p>
+      <div class="actions">
+        <button type="button" id="btn-refresh" class="btn">Refresh</button>
+        <button type="button" id="btn-delete" class="btn btn-danger">Delete all reports</button>
+      </div>
+      <p id="reports-result" class="card" hidden></p>
+    </section>
+
+    <section id="view-notfound" class="view" hidden>
+      <h1>Page not found</h1>
+    </section>
+  </main>
+
+  <script src="/api/test/fixture/app.js"></script>
+</body>
+</html>

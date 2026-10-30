@@ -1,0 +1,48 @@
+:root {
+  --bg: #f4f6fb; --card: #ffffff; --ink: #1c2333; --muted: #5d6679; --line: #d9deea;
+  --accent: #3b5bfd; --accent-ink: #ffffff; --bad: #c62828; --warn: #b26a00; --ok: #1b7f3b;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+.topbar { display: flex; align-items: center; gap: 24px; padding: 0 24px; height: 56px; background: #101a3a; color: #fff; }
+/* Fixed geometry: the test console clicks these links by coordinate, so their position must not depend on fonts.
+   Link centres (viewport px): Problems (263, 28), Services (377, 28), Reports (491, 28). */
+.brand { font-weight: 700; letter-spacing: .3px; width: 160px; flex: none; white-space: nowrap; overflow: hidden; }
+.brand span { color: #8fa4ff; }
+nav { display: flex; gap: 4px; flex: 1; }
+.nav-link { color: #cdd6ff; text-decoration: none; display: block; flex: none; width: 110px; height: 40px; line-height: 40px; padding: 0; text-align: center; border-radius: 6px; }
+.nav-link:hover { background: rgba(255,255,255,.1); color: #fff; }
+.nav-link.active { background: var(--accent); color: var(--accent-ink); }
+.account { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+main { padding: 28px 24px 48px; max-width: 980px; margin: 0 auto; }
+h1 { margin: 0 0 4px; font-size: 24px; }
+h2 { margin: 28px 0 8px; font-size: 16px; }
+.muted { color: var(--muted); }
+.view[hidden] { display: none; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin-top: 16px; }
+.card.narrow { max-width: 380px; margin: 40px auto; }
+label { display: block; margin: 14px 0 4px; font-weight: 600; font-size: 13px; }
+input[type=text], input[type=password] { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.btn { display: inline-block; padding: 9px 16px; border: 0; border-radius: 6px; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 600; cursor: pointer; margin-top: 16px; }
+.btn:hover { filter: brightness(1.08); }
+.btn-small { padding: 4px 10px; margin: 0; font-size: 13px; }
+.btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,.4); margin: 0; padding: 5px 12px; }
+.btn-danger { background: var(--bad); margin-left: 8px; }
+.actions { margin-top: 12px; }
+.error { color: var(--bad); margin: 12px 0 0; }
+.table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 16px; }
+.table th, .table td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.table th { background: #eef1fa; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #eee; }
+.pill.ok { background: #e1f5e8; color: var(--ok); }
+.pill.warn { background: #fff0d6; color: var(--warn); }
+.pill.bad { background: #fde3e3; color: var(--bad); }
+.cards { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 10px; }
+.cards li { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; }
+.cards a { color: var(--accent); font-weight: 600; text-decoration: none; }
+iframe { border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+code { background: #eceff8; padding: 1px 5px; border-radius: 4px; }
+.frame-body { background: #fff; padding: 8px 14px; min-height: 0; }
+.frame-body h3 { margin: 4px 0 8px; font-size: 14px; }

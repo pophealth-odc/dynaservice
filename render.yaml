@@ -1,0 +1,34 @@
+# Render Blueprint: optional. "New > Blueprint" in the Render dashboard reads this file and creates the service.
+# You can also create the service by hand (see docs/RENDER_DEPLOYMENT.md); both routes give the same result.
+services:
+  - type: web
+    name: cloud-screenshot-service
+    runtime: docker
+    plan: free
+    region: oregon          # pick the region closest to you; it cannot be changed later
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/status
+    autoDeploy: true        # redeploy on every push to the connected branch
+    envVars:
+      - key: API_TOKEN
+        generateValue: true # Render generates a strong random value; read it in the dashboard, never commit it
+      - key: DASHBOARD_ORIGIN
+        sync: false         # you are asked for it during setup: https://YOUR-USERNAME.github.io
+      - key: NODE_ENV
+        value: production
+      - key: DEFAULT_LOGIN_URL
+        value: https://aaj23525.apps.dynatrace.com/
+      - key: BROWSER_HEADLESS
+        value: "true"
+      - key: DEFAULT_VIEWPORT_WIDTH
+        value: "1920"
+      - key: DEFAULT_VIEWPORT_HEIGHT
+        value: "1080"
+      - key: NAVIGATION_TIMEOUT
+        value: "30000"
+      - key: ELEMENT_TIMEOUT
+        value: "15000"
+      - key: ADDITIONAL_PAGE_DELAY
+        value: "5000"
+      - key: SCREENSHOT_DIR
+        value: /tmp/screenshot-automation/screenshots

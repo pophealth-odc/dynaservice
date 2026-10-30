@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Screenshot Service Test Console</title>
+  <link rel="stylesheet" href="/api/test/test.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-left">
+    <h1>Screenshot Service <span>Test Console</span></h1>
+    <span id="conn-badge" class="badge badge-off" title="API connection">Disconnected</span>
+    <span id="wake-badge" class="badge badge-wait" hidden>Waking up…</span>
+  </div>
+  <form id="auth-form" class="auth" autocomplete="off">
+    <input id="token-input" type="password" placeholder="API pairing token" autocomplete="off" spellcheck="false" aria-label="API pairing token">
+    <button type="submit" id="btn-connect">Connect</button>
+    <button type="button" id="btn-disconnect" class="secondary" hidden>Disconnect / Clear token</button>
+  </form>
+  <div class="top-links"><a href="/api/docs" target="_blank" rel="noopener">API docs</a></div>
+</header>
+
+<div id="banner" class="banner" hidden></div>
+
+<main>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="health" aria-selected="true">Health</button>
+    <button role="tab" data-tab="browser" aria-selected="false">Browser &amp; Remote</button>
+    <button role="tab" data-tab="login" aria-selected="false">Login</button>
+    <button role="tab" data-tab="recorder" aria-selected="false">Recorder</button>
+    <button role="tab" data-tab="workflows" aria-selected="false">Workflows</button>
+    <button role="tab" data-tab="screenshots" aria-selected="false">Screenshots</button>
+    <button role="tab" data-tab="events" aria-selected="false">Events</button>
+    <button role="tab" data-tab="results" aria-selected="false">Test results</button>
+  </nav>
+
+  <!-- ===== Health ===== -->
+  <section class="panel" data-panel="health">
+    <div class="row-head"><h2>Service health</h2><button id="btn-status">Refresh status</button></div>
+    <div id="health-grid" class="kv"></div>
+    <details><summary>Raw status JSON</summary><pre id="health-raw" class="json"></pre></details>
+    <p class="note">Render Free spins the service down after inactivity. The first request after a sleep can take 30-60 s; the console shows a waiting state while it wakes.</p>
+  </section>
+
+  <!-- ===== Browser & remote ===== -->
+  <section class="panel" data-panel="browser" hidden>
+    <div class="row-head"><h2>Browser</h2></div>
+    <div class="toolbar">
+      <button id="btn-launch">Launch Chromium</button>
+      <button id="btn-close" class="secondary">Close Browser</button>
+      <button id="btn-browser-status" class="secondary">Check Browser Status</button>
+      <button id="btn-get-url" class="secondary">Get Current URL</button>
+    </div>
+    <div class="toolbar">
+      <input id="open-url" type="text" placeholder="https://example.com/" spellcheck="false" aria-label="Website URL">
+      <button id="btn-open-url">Open Website</button>
+      <button id="btn-open-fixture" class="secondary" title="Open the built-in demo site">Open demo site</button>
+    </div>
+    <p class="muted" id="browser-line">Browser not queried yet.</p>
+
+    <div class="remote">
+      <div class="remote-view">
+        <div class="remote-bar">
+          <strong>Remote browser</strong>
+          <span id="remote-url" class="url" title="Current URL">–</span>
+          <label class="inline"><input type="checkbox" id="auto-refresh"> auto-refresh</label>
+          <button id="btn-shot-refresh" class="small">Refresh screenshot</button>
+          <button id="btn-shot-capture" class="small secondary">Capture &amp; store</button>
+        </div>
+        <div class="stage" id="stage">
+          <img id="remote-img" alt="Remote browser viewport" draggable="false" hidden>
+          <div id="stage-empty" class="stage-empty">Launch the browser, then refresh the screenshot.</div>
+          <div id="marker" class="marker" hidden></div>
+        </div>
+        <div class="remote-meta"><span id="coord-line">Click the image to click in the browser.</span></div>
+      </div>
+      <div class="remote-ctl">
+        <div class="seg">
+          <label>Mouse action on click</label>
+          <div class="radios">
+            <label><input type="radio" name="mode" value="click" checked> Click</label>
+            <label><input type="radio" name="mode" value="hover"> Hover</label>
+          </div>
+        </div>
+        <div class="seg">
+          <label for="type-text">Type into the focused field</label>
+          <input id="type-text" type="password" autocomplete="off" spellcheck="false" placeholder="Click a field first, then type here">
+          <label class="inline"><input type="checkbox" id="type-enter"> press Enter after</label>
+          <button id="btn-type">Type</button>
+          <p class="note">Typed text goes straight to the cloud browser. It is not logged, stored or echoed by the service. Use this for username, password and MFA code.</p>
+        </div>
+        <div class="seg">
+          <label>Keys</label>
+          <div class="keys">
+            <button class="small secondary key" data-key="Enter">Enter</button>
+            <button class="small secondary key" data-key="Tab">Tab</button>
+            <button class="small secondary key" data-key="Escape">Esc</button>
+            <button class="small secondary key" data-key="Backspace">Backspace</button>
+            <button class="small secondary key" data-key="ArrowUp">↑</button>
+            <button class="small secondary key" data-key="ArrowDown">↓</button>
+            <button class="small secondary key" data-key="ArrowLeft">←</button>
+            <button class="small secondary key" data-key="ArrowRight">→</button>
+          </div>
+          <div class="toolbar tight">
+            <input id="key-custom" type="text" placeholder="e.g. Control+A, F5" spellcheck="false" aria-label="Key">
+            <button id="btn-key" class="small">Press</button>
+          </div>
+        </div>
+        <div class="seg">
+          <label>Scroll</label>
+          <div class="toolbar tight">
+            <button class="small secondary scroll" data-dy="-600">▲ Up</button>
+            <button class="small secondary scroll" data-dy="600">▼ Down</button>
+            <button class="small secondary scroll" data-dx="-600">◀</button>
+            <button class="small secondary scroll" data-dx="600">▶</button>
+          </div>
+        </div>
+        <div class="seg">
+          <button id="btn-refresh-page" class="secondary">Reload page</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Login ===== -->
+  <section class="panel" data-panel="login" hidden>
+    <div class="row-head"><h2>Manual login &amp; MFA</h2></div>
+    <p>Credentials are typed into the <em>remote browser</em> (Browser &amp; Remote tab). This page never asks for them.</p>
+    <div class="toolbar">
+      <button id="btn-login-open">Open Login Page</button>
+      <button id="btn-login-status" class="secondary">Login Status</button>
+      <button id="btn-login-confirm" class="accent">I'm Logged In — Continue Automation</button>
+      <button id="btn-login-cancel" class="secondary">Cancel Login</button>
+    </div>
+    <div id="login-grid" class="kv"></div>
+    <p class="note">Confirmation is your own acknowledgement; the service cannot verify that authentication succeeded. If authentication expires, automation pauses and asks you to log in again.</p>
+  </section>
+
+  <!-- ===== Recorder ===== -->
+  <section class="panel" data-panel="recorder" hidden>
+    <div class="row-head"><h2>Element recorder</h2></div>
+    <div class="toolbar">
+      <button id="btn-rec-start">Start Recording</button>
+      <button id="btn-rec-stop" class="secondary">Stop Recording</button>
+      <button id="btn-rec-get" class="secondary">Get Selected Element</button>
+      <button id="btn-rec-clear" class="secondary">Clear Selection</button>
+    </div>
+    <p class="muted">While recording, hover over the remote browser (Browser &amp; Remote tab) to highlight an element; click to select it. Site actions are blocked until you stop.</p>
+    <label class="inline"><input type="checkbox" id="rec-continue"> select &amp; continue — also perform the click after selecting, so you can reach the next page and record the next step (never for delete/pay/log-out style elements)</label>
+    <div id="rec-status" class="kv"></div>
+    <h3>Selected element</h3>
+    <div id="rec-selection" class="kv"></div>
+    <div class="toolbar">
+      <select id="rec-workflow" aria-label="Workflow to add the step to"></select>
+      <input id="rec-step-name" type="text" placeholder="Step name (optional)" aria-label="Step name">
+      <button id="btn-rec-add">Save as workflow step</button>
+    </div>
+    <details><summary>Selection JSON</summary><pre id="rec-raw" class="json"></pre></details>
+  </section>
+
+  <!-- ===== Workflows ===== -->
+  <section class="panel" data-panel="workflows" hidden>
+    <div class="row-head"><h2>Workflows &amp; automation</h2></div>
+    <div class="toolbar">
+      <button id="btn-wf-sample">Create Sample Workflow</button>
+      <button id="btn-wf-list" class="secondary">List Workflows</button>
+      <button id="btn-wf-import" class="secondary">Import Workflow JSON</button>
+      <input type="file" id="wf-file" accept="application/json,.json" hidden>
+    </div>
+    <div class="cols">
+      <div>
+        <h3>Workflows</h3>
+        <ul id="wf-list" class="list"></ul>
+      </div>
+      <div>
+        <h3 id="wf-title">Selected workflow</h3>
+        <div class="toolbar tight">
+          <button id="btn-wf-view" class="small secondary">View</button>
+          <button id="btn-wf-export" class="small secondary">Export JSON</button>
+          <button id="btn-wf-dup" class="small secondary">Duplicate</button>
+          <button id="btn-wf-rename" class="small secondary">Rename</button>
+          <button id="btn-wf-delete" class="small danger">Delete</button>
+        </div>
+        <ol id="wf-steps" class="steps"></ol>
+      </div>
+    </div>
+
+    <h3>Automation controls</h3>
+    <div class="toolbar">
+      <button id="btn-a-start" class="accent">Start Workflow</button>
+      <button id="btn-a-start-paused" class="secondary">Start Paused (step mode)</button>
+      <button id="btn-a-pause" class="secondary">Pause</button>
+      <button id="btn-a-resume" class="secondary">Resume</button>
+      <button id="btn-a-stop" class="danger">Stop</button>
+      <button id="btn-a-restart" class="secondary">Restart</button>
+    </div>
+    <div class="toolbar">
+      <button id="btn-a-exec" class="secondary">Execute Current Step</button>
+      <button id="btn-a-skip" class="secondary">Skip Current Step</button>
+      <button id="btn-a-test" class="secondary">Test Selected Step</button>
+      <label class="inline"><input type="checkbox" id="confirm-destructive"> confirm destructive actions</label>
+    </div>
+    <div class="progress"><div id="progress-bar"></div></div>
+    <div id="auto-grid" class="kv"></div>
+    <h3>Step results</h3>
+    <ol id="run-steps" class="steps"></ol>
+  </section>
+
+  <!-- ===== Screenshots ===== -->
+  <section class="panel" data-panel="screenshots" hidden>
+    <div class="row-head"><h2>Screenshots</h2></div>
+    <div class="toolbar">
+      <button id="btn-s-capture">Capture Screenshot</button>
+      <button id="btn-s-list" class="secondary">List Screenshots</button>
+      <button id="btn-s-zip" class="secondary">Export All as ZIP</button>
+      <button id="btn-s-clear" class="danger">Clear Screenshots</button>
+    </div>
+    <p class="note">Screenshots are kept only in the service's temporary storage. Download what you want to keep; the service may lose them at any time.</p>
+    <div id="shots" class="shots"></div>
+    <div id="shot-preview" class="preview" hidden>
+      <div class="preview-bar"><strong id="preview-title"></strong><button id="preview-close" class="small secondary">Close</button></div>
+      <img id="preview-img" alt="Screenshot preview">
+    </div>
+  </section>
+
+  <!-- ===== Events ===== -->
+  <section class="panel" data-panel="events" hidden>
+    <div class="row-head"><h2>Live events (SSE)</h2></div>
+    <div class="toolbar">
+      <button id="btn-ev-connect">Connect</button>
+      <button id="btn-ev-disconnect" class="secondary">Disconnect</button>
+      <button id="btn-ev-clear" class="secondary">Clear display</button>
+      <span id="ev-state" class="badge badge-off">stopped</span>
+    </div>
+    <p class="note">Clearing only empties this display. It does not affect execution on the service.</p>
+    <div class="table-wrap">
+      <table class="events"><thead><tr><th>Time</th><th>Event</th><th>Description</th><th>Workflow</th><th>Step</th><th>Status</th></tr></thead><tbody id="ev-body"></tbody></table>
+    </div>
+  </section>
+
+  <!-- ===== Test results ===== -->
+  <section class="panel" data-panel="results" hidden>
+    <div class="row-head"><h2>Tests</h2></div>
+    <div class="toolbar">
+      <button id="btn-t-all" class="accent">Run All Tests</button>
+      <button id="btn-t-clear" class="secondary">Clear Results</button>
+      <button id="btn-t-export" class="secondary">Export Results as JSON</button>
+    </div>
+    <p class="note">Each test calls the real API and is only marked Passed when the operation actually succeeded. Run All executes in order and restores the browser state it needs. It uses the built-in demo site, not an external website.</p>
+    <div class="table-wrap">
+      <table class="results"><thead><tr><th>Test</th><th>Status</th><th>Started</th><th>Duration</th><th>Details</th><th></th></tr></thead><tbody id="test-body"></tbody></table>
+    </div>
+  </section>
+
+  <details class="last" id="last-box">
+    <summary>Last API response <span id="last-meta" class="muted"></span></summary>
+    <pre id="last-response" class="json">Nothing yet.</pre>
+  </details>
+</main>
+
+<div id="toast" class="toast" hidden></div>
+<script src="/api/test/test.js"></script>
+</body>
+</html>

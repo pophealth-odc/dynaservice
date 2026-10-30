@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# secrets / local configuration - NEVER commit these
+.env
+.env.*
+!.env.example
+
+# runtime data (screenshots, workflows and run state are temporary by design)
+tmp/
+*.tmp
+screenshot-automation/
+
+# logs
+*.log
+npm-debug.log*
+
+# test and tooling output
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# local assistant state
+.claude/

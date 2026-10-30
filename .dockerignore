@@ -1,0 +1,31 @@
+# Keep the build context small and free of anything that must not end up in the image.
+node_modules
+npm-debug.log*
+.git
+.gitignore
+.github
+
+# Secrets and local configuration - never bake these into an image
+.env
+.env.*
+!.env.example
+
+# Not needed at runtime
+tests
+scripts
+docs
+*.md
+Dockerfile
+.dockerignore
+render.yaml
+
+# Runtime / editor / OS artefacts
+coverage
+.nyc_output
+.vscode
+.idea
+*.log
+.DS_Store
+Thumbs.db
+tmp
+.claude
